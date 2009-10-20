@@ -4,13 +4,47 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
 
 public class GridLockedRenderer implements GLSurfaceView.Renderer 
 {
     public GridLockedRenderer(boolean useTranslucentBackground)
     {
         m_translucentBackground = useTranslucentBackground;
-        m_board = new Board();
+        final int one = 0x10000;
+        int vertices[] = {
+                0, 0, 0,
+                0,  one, 0,
+                one, 0, 0,
+                one, one, 0,
+        };
+        byte indices[] = { 0, 1, 2, 3 };
+        byte lineIndices[] = { 0, 1, 3, 2, 0 };
+
+        ByteBuffer vbb = ByteBuffer.allocateDirect(vertices.length*4);
+        vbb.order(ByteOrder.nativeOrder());
+        m_vertexBuffer = vbb.asIntBuffer();
+        m_vertexBuffer.put(vertices);
+        m_vertexBuffer.position(0);
+        
+        m_indexBuffer = ByteBuffer.allocateDirect(indices.length);
+        m_indexBuffer.put(indices);
+        m_indexBuffer.position(0);
+        
+        m_lineBuffer = ByteBuffer.allocateDirect(lineIndices.length);
+        m_lineBuffer.put(lineIndices);
+        m_lineBuffer.position(0);
+        
+    }
+    public void SetMainThread( GridLockedMain mainThread )
+    {
+    	m_mainThread = mainThread;
+    }
+    public void SetBoard( Board board )
+    {
+    	m_board = board;
     }
     public void onDrawFrame(GL10 gl) 
     {
@@ -36,7 +70,7 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
 
-        m_board.draw(gl);
+        m_board.draw(gl, this);
 
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
@@ -83,7 +117,27 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
          gl.glEnable(GL10.GL_CULL_FACE);
          gl.glShadeModel(GL10.GL_SMOOTH);
          gl.glEnable(GL10.GL_DEPTH_TEST);
+         
+         // Tell the main game thread to run
+         m_mainThread.setRunning(true);
+         m_mainThread.start();
     }
-    private boolean m_translucentBackground;
-    private Board m_board;
+    public void drawOutlineRectangle(GL10 gl, float x0, float y0, float width, float height)
+    {
+        gl.glVertexPointer(3, GL10.GL_FIXED, 0, m_vertexBuffer);
+		gl.glTranslatef( x0, y0, 1.0f );
+		gl.glScalef( width, height, 1.0f );
+		gl.glDrawElements(GL10.GL_TRIANGLE_STRIP, 4, GL10.GL_UNSIGNED_BYTE, m_indexBuffer);
+			
+		gl.glTranslatef( 0.01f, 0.01f, 1.0f );
+		gl.glScalef( 0.99f, 0.99f, 1.0f );
+		gl.glColor4f(1.0f,0,0.5f,1.0f);
+		gl.glDrawElements(GL10.GL_LINE_STRIP, 5, GL10.GL_UNSIGNED_BYTE, m_lineBuffer ); 
+    }
+    private boolean 		m_translucentBackground;
+    private Board 			m_board;
+    private GridLockedMain	m_mainThread;
+    private IntBuffer   	m_vertexBuffer;
+    private ByteBuffer  	m_indexBuffer;
+    private ByteBuffer  	m_lineBuffer;
 }

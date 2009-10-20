@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.opengl.GLSurfaceView;
 import android.view.ViewGroup;
+import android.os.Handler;
 
 public class GridLocked extends Activity {
     /** Called when the activity is first created. */
@@ -12,8 +13,12 @@ public class GridLocked extends Activity {
     {
         super.onCreate(savedInstanceState);
         
+        m_handler = new Handler();
         m_myRenderer = new GridLockedRenderer(true);
         m_gLSurfaceView = new GLSurfaceView( this );
+        m_myMain = new GridLockedMain(m_myRenderer, m_handler);
+        m_myRenderer.SetMainThread(m_myMain);
+        
         m_gLSurfaceView.setRenderer(m_myRenderer);
         
         setContentView( R.layout.main );
@@ -22,21 +27,22 @@ public class GridLocked extends Activity {
     }
     
     @Override
-    protected void onResume() {
-        // Ideally a game should implement onResume() and onPause()
-        // to take appropriate action when the activity looses focus
+    protected void onResume() 
+    {
         super.onResume();
         m_gLSurfaceView.onResume();
+        // Game thread needs to handle this
     }
 
     @Override
-    protected void onPause() {
-        // Ideally a game should implement onResume() and onPause()
-        // to take appropriate action when the activity looses focus
+    protected void onPause() 
+    {
         super.onPause();
         m_gLSurfaceView.onPause();
+        // Game thread needs to handle this
     }
-    
-    private GLSurfaceView m_gLSurfaceView;
-    private GridLockedRenderer m_myRenderer;
+    private GLSurfaceView 		m_gLSurfaceView;
+    private GridLockedRenderer 	m_myRenderer;
+    private GridLockedMain		m_myMain;
+    private Handler				m_handler;
 }
