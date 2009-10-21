@@ -1,32 +1,48 @@
 package com.zorro6666.gridlocked;
 
-import android.os.Handler;
 import android.os.SystemClock;
 
 public class GridLockedMain extends Thread 
 {
-    public GridLockedMain(GridLockedRenderer renderer, Handler handler) 
+    public GridLockedMain(GridLockedRenderer renderer ) 
     {
     	m_board = new Board();
-        m_handler = handler;
-        m_renderer = renderer;
-        m_renderer.SetBoard(m_board);
+        m_state = STATE_READY;
+        m_run = false;
     }
     
     public Board GetBoard()
     {
     	return m_board;
-   }
-    public void doStart() 
+    }
+    public void onStart() 
     {
     	m_lastTime = System.currentTimeMillis() + 100;
-    	setState(STATE_RUNNING);
+    	setState(STATE_READY);
+    	setRunning(true);
     }     
+    protected void onResume()
+    {
+    	setState(STATE_RUNNING);
+    }
+    public void onPause() 
+    {
+    	setState(STATE_PAUSED);
+    }
+    protected void onStop()
+    {
+    	setState(STATE_READY);
+    	setRunning(false);
+    }
+    protected void onDestroy()
+    {
+    	setState(STATE_PAUSED);
+    	setRunning(false);
+    }
     @Override
     public void start() 
     {
     	super.start();
-    	doStart();
     }
     @Override
     public void run() 
@@ -44,6 +60,7 @@ public class GridLockedMain extends Thread
                 // do this in a finally so that if an exception is thrown during the above
             }
         }
+        setState(STATE_STOPPED);
     }
 
     public void setRunning(boolean run)
@@ -59,15 +76,14 @@ public class GridLockedMain extends Thread
 		m_board.update();
 	}
     
-    public static final int STATE_PAUSE = 1;
-    public static final int STATE_READY = 2;
-    public static final int STATE_RUNNING = 3;
+    public static final int STATE_PAUSED 	= 1;
+    public static final int STATE_READY 	= 2;
+    public static final int STATE_RUNNING 	= 3;
+    public static final int STATE_STOPPED 	= 4;
     
     private long				m_lastTime;
     private int 				m_state;
     private boolean 			m_run = false;
-    private GridLockedRenderer 	m_renderer;
-    private Handler 			m_handler;
 	private Board				m_board;
 }
         

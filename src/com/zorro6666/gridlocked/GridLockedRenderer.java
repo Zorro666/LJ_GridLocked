@@ -38,10 +38,6 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
         m_lineBuffer.position(0);
         
     }
-    public void SetMainThread( GridLockedMain mainThread )
-    {
-    	m_mainThread = mainThread;
-    }
     public void SetBoard( Board board )
     {
     	m_board = board;
@@ -70,6 +66,10 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
 
+        //gl.glFrontFace(GL10.GL_CW);
+        //gl.glDepthFunc(GL10.GL_LEQUAL);
+        //gl.glColor4f( 1.0f, 0.0f, 0.5f, 1.0f );
+        //drawOutlineRectangle(gl, 0.1f, 0.1f, 0.3f, 0.3f );
         m_board.draw(gl, this);
 
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
@@ -82,7 +82,7 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
 
          /*
           * Set our projection matrix. This doesn't have to be done
-          * each time we draw, but usually a new projection needs to
+         * each time we draw, but usually a new projection needs to
           * be set when the viewport is resized.
           */
 
@@ -110,7 +110,8 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
          if (m_translucentBackground) 
          {
              gl.glClearColor(0,0,0,0);
-         } else 
+         }
+         else 
          {
              gl.glClearColor(1,1,1,1);
          }
@@ -118,9 +119,6 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
          gl.glShadeModel(GL10.GL_SMOOTH);
          gl.glEnable(GL10.GL_DEPTH_TEST);
          
-         // Tell the main game thread to run
-         m_mainThread.setRunning(true);
-         m_mainThread.start();
     }
     public void drawOutlineRectangle(GL10 gl, float x0, float y0, float width, float height)
     {
@@ -136,7 +134,6 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
     }
     private boolean 		m_translucentBackground;
     private Board 			m_board;
-    private GridLockedMain	m_mainThread;
     private IntBuffer   	m_vertexBuffer;
     private ByteBuffer  	m_indexBuffer;
     private ByteBuffer  	m_lineBuffer;
