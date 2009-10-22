@@ -3,6 +3,7 @@ package com.zorro6666.gridlocked;
 import javax.microedition.khronos.opengles.GL10;
 import java.util.ArrayList;
 import java.util.Random;
+import android.util.Log;
 
 public class Board 
 {
@@ -24,6 +25,7 @@ public class Board
 	}
 	public synchronized void draw( GL10 gl, GridLockedRenderer renderer )
 	{
+    	Log.v( TAG,"draw");
         gl.glFrontFace(GL10.GL_CW);
         gl.glDepthFunc(GL10.GL_LEQUAL);
         int size = m_pieces.size();
@@ -48,4 +50,6 @@ public class Board
     private ArrayList<Piece>	m_pieces;
     static final private int	MAX_NUM_ELEMENTS = (8 * 8);
     private Random				m_generator;
+    
+    private static final String TAG = "BD";
 }
