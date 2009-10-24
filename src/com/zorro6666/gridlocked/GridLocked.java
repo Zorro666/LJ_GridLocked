@@ -14,34 +14,38 @@ public class GridLocked extends Activity
     @Override
     public void onCreate(Bundle savedInstanceState) 
     {
-    	Log.v( TAG,"onCreate");
+    	Log.i( TAG,"onCreate");
         super.onCreate(savedInstanceState);
         
         m_gLSurfaceView = new GLSurfaceView( this );
         
-        m_myRenderer = new GridLockedRenderer(true);
-        m_myMain = new GridLockedMain(m_myRenderer);
-        m_myRenderer.SetBoard(m_myMain.GetBoard());
+        m_myMain = new GridLockedMain();
+        m_myRenderer = new GridLockedRenderer(true,m_myMain);
         	
         setContentView( R.layout.main );
         ViewGroup absLayout = (ViewGroup)findViewById( R.id.RenderView );
         absLayout.addView( m_gLSurfaceView );
+        
+       	m_gLSurfaceView.setRenderer(m_myRenderer);
     }
-    
     
     @Override
     protected void onStart() 
     {
-    	Log.v( TAG,"onStart");
+    	Log.i( TAG,"onStart");
         super.onStart();
-       	m_gLSurfaceView.setRenderer(m_myRenderer);
         m_myMain.onStart();
-        m_myMain.start();
+    }
+    @Override
+    protected void onRestart() 
+    {
+    	Log.i( TAG,"onRestart");
+        super.onResume();
     }
     @Override
     protected void onResume() 
     {
-    	Log.v( TAG,"onResume");
+    	Log.i( TAG,"onResume");
         super.onResume();
         m_gLSurfaceView.onResume();
         m_myMain.onResume();
@@ -50,7 +54,7 @@ public class GridLocked extends Activity
     @Override
     protected void onPause() 
     {
-    	Log.v( TAG,"onPause");
+    	Log.i( TAG,"onPause");
         super.onPause();
         m_gLSurfaceView.onPause();
         m_myMain.onPause();
@@ -58,14 +62,14 @@ public class GridLocked extends Activity
     @Override
     protected void onStop()
     {
-    	Log.v( TAG,"onStop");
+    	Log.i( TAG,"onStop");
         super.onStop();
         m_myMain.onStop();
     }
     @Override
     protected void onDestroy()
     {
-    	Log.v( TAG,"onDestroy");
+    	Log.i( TAG,"onDestroy");
         super.onDestroy();
         // Kill the thread
         m_myMain.onDestroy();

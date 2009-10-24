@@ -17,27 +17,27 @@ public class Board
 	}
     public void addPiece( int x, int y, int type )
     {
-    	if ( m_pieces.size() >= (Board.MAX_NUM_ELEMENTS/4) )
+    	if ( m_pieces.size() >= (Board.MAX_NUM_ELEMENTS/1) )
    		{
     		m_pieces.remove(0);
   		}
         m_pieces.add( new Piece( x, y, type ) );
 	}
-	public synchronized void draw( GL10 gl, GridLockedRenderer renderer )
+	public void draw( GL10 gl, GridLockedRenderer renderer )
 	{
-    	Log.v( TAG,"draw");
-        gl.glFrontFace(GL10.GL_CW);
-        gl.glDepthFunc(GL10.GL_LEQUAL);
-        int size = m_pieces.size();
-		for ( int i = 0; i < size; ++i )
-		{
-			Piece piece = m_pieces.get(i);
-			gl.glPushMatrix();
-			piece.draw(gl, renderer);
-			gl.glPopMatrix();
-		}
+    	//Log.v( TAG,"draw");
+   		gl.glFrontFace(GL10.GL_CW);
+   		gl.glDepthFunc(GL10.GL_LEQUAL);
+   		int size = m_pieces.size();
+   		for ( int i = 0; i < size; ++i )
+   		{
+   			Piece piece = m_pieces.get(i);
+   			gl.glPushMatrix();
+   			piece.draw(gl, renderer);
+   			gl.glPopMatrix();
+    	}
 	}
-	public synchronized void update()
+	public void update()
 	{
 		if ( m_generator.nextInt(100) < 10 )
 		{
@@ -47,9 +47,29 @@ public class Board
 			addPiece( x, y, type );
 		}
 	}
+	public void copy( Board otherBoard )
+	{
+		int oldSize = m_pieces.size();
+   		int size = otherBoard.m_pieces.size();
+   		for ( int i = 0; i < size; ++i )
+   		{
+   			Piece piece = otherBoard.m_pieces.get(i);
+   			if ( i >= oldSize )
+   			{
+   				m_pieces.add( new Piece( 0, 0, 0 ) );
+   			}
+			m_pieces.get(i).copy( piece );
+   		}
+   		// Remove any pieces that shouldn't be there
+   		for ( int i = size; i < oldSize; ++i )
+   		{
+   			m_pieces.remove(i);
+   		}
+	}
+	
     private ArrayList<Piece>	m_pieces;
     static final private int	MAX_NUM_ELEMENTS = (8 * 8);
-    private Random				m_generator;
+    static private Random		m_generator;
     
     private static final String TAG = "BD";
 }

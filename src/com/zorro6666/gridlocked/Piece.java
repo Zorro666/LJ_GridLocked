@@ -62,6 +62,12 @@ public class Piece
 	{
 		return m_type;
 	}
+	public void copy( Piece otherPiece )
+	{
+		m_x = otherPiece.m_x;
+		m_y = otherPiece.m_y;
+		m_type = otherPiece.m_type;
+	}
     private int   		m_x;
     private int  		m_y;
     private int  		m_type;

@@ -1,28 +1,36 @@
 package com.zorro6666.gridlocked;
 
-import android.os.SystemClock;
 import android.util.Log;
 
 public class GridLockedMain extends Thread 
 {
-    public GridLockedMain(GridLockedRenderer renderer ) 
+    public GridLockedMain() 
     {
-    	Log.v( TAG,"Construct");
-    	m_board = new Board();
-        m_state = STATE_READY;
+    	Log.i( TAG,"Construct");
+    	m_boards = new Board[2];
+    	m_boards[0] = new Board();
+    	m_boards[1] = new Board();
+    	m_boardGame = m_boards[0];
+    	m_boardRender = m_boards[1];
+        m_state = STATE_STOPPED;
         m_run = false;
     }
     
-    public Board GetBoard()
+    public Board GetRenderBoard()
     {
-    	return m_board;
+    	return m_boardRender;
     }
     public void onStart() 
     {
-    	Log.v( TAG,"onStart");
-    	m_nextTime = System.currentTimeMillis() + 100;
-    	setState(STATE_READY);
-    	setRunning(true);
+    	Log.i( TAG,"onStart");
+    	m_nextTime = System.currentTimeMillis() + 1;
+    	if (m_state == STATE_STOPPED)
+    	{
+    		setState(STATE_READY);
+    		setRunning(true);
+    		Log.i( TAG,"start");
+    		super.start();
+    	}
     }     
     protected void onResume()
     {
@@ -34,8 +42,7 @@ public class GridLockedMain extends Thread
     }
     protected void onStop()
     {
-    	setState(STATE_READY);
-    	setRunning(false);
+    	setState(STATE_PAUSED);
     }
     protected void onDestroy()
     {
@@ -43,15 +50,9 @@ public class GridLockedMain extends Thread
     	setRunning(false);
     }
     @Override
-    public void start() 
-    {
-    	Log.v( TAG,"start");
-    	super.start();
-    }
-    @Override
     public void run() 
     {
-    	Log.v( TAG,"run");
+    	Log.i( TAG,"run");
         while (m_run) 
         {
             try 
@@ -65,9 +66,8 @@ public class GridLockedMain extends Thread
                 // do this in a finally so that if an exception is thrown during the above
             }
         }
-    	Log.v( TAG,"run end");
+    	Log.i( TAG,"run end");
         setState(STATE_STOPPED);
-        
     }
 
     public void setRunning(boolean run)
@@ -85,8 +85,19 @@ public class GridLockedMain extends Thread
 		{
 			return;
 		}
-		m_nextTime = now + 100;
-		m_board.update();
+		m_nextTime = now + 1;
+		m_boardGame.update();
+		
+		// Update the render board from game board
+		updateRenderBoard();
+	}
+	private void updateRenderBoard()
+	{
+		// Need to sync with the render thread
+		synchronized ( m_boardRender )
+		{
+			m_boardRender.copy(m_boardGame);
+		}
 	}
     
     public static final int STATE_PAUSED 	= 1;
@@ -97,7 +108,9 @@ public class GridLockedMain extends Thread
     private long				m_nextTime;
     private int 				m_state;
     private boolean 			m_run = false;
-	private Board				m_board;
+	private Board				m_boardGame;
+	private Board				m_boardRender;
+	private Board[]				m_boards;
 	
     private static final String TAG = "GLM";
 }

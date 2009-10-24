@@ -11,11 +11,13 @@ import java.nio.IntBuffer;
 
 public class GridLockedRenderer implements GLSurfaceView.Renderer 
 {
-    public GridLockedRenderer(boolean useTranslucentBackground)
+    public GridLockedRenderer(boolean useTranslucentBackground, GridLockedMain mainThread)
     {
-    	Log.v( TAG,"Construct");
+    	Log.i( TAG,"Construct");
     	
         m_translucentBackground = useTranslucentBackground;
+        m_mainThread = mainThread;
+        
         final int one = 0x10000;
         int vertices[] = {
                 0, 0, 0,
@@ -41,30 +43,9 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
         m_lineBuffer.position(0);
         
     }
-    public void SetBoard( Board board )
-    {
-    	Log.v( TAG,"SetBoard");
-    	m_board = board;
-    }
-/*
-    public int[] getConfigSpec()
-    {
-    	return new int[2];
-    }
-    public void sizeChanged(GL10 gl, int width, int height )
-    {
-    }
-    public void surfaceCreated(GL10 gl )
-    {
-    }
-    public void drawFrame(GL10 gl) 
-    {
-    	onDrawFrame(gl);
-    }
-*/
     public void onDrawFrame(GL10 gl) 
     {
-    	Log.v( TAG,"onDrawFrame");
+    	//Log.i( TAG,"onDrawFrame");
         /*
          * Usually, the first thing one might want to do is to clear
          * the screen. The most efficient way of doing this is to use
@@ -91,7 +72,11 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
         //gl.glDepthFunc(GL10.GL_LEQUAL);
         //gl.glColor4f( 1.0f, 0.0f, 0.5f, 1.0f );
         //drawOutlineRectangle(gl, 0.1f, 0.1f, 0.3f, 0.3f );
-        m_board.draw(gl, this);
+        Board board = m_mainThread.GetRenderBoard();
+        synchronized( board)
+        {
+        	board.draw(gl, this);
+        }
 
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
@@ -99,7 +84,7 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
 
     public void onSurfaceChanged(GL10 gl, int width, int height) 
     {
-    	Log.v( TAG,"onSurfaceChanged");
+    	Log.i( TAG,"onSurfaceChanged");
     	gl.glViewport(0, 0, width, height);
     	
     	/*
@@ -116,7 +101,7 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
 
     public void onSurfaceCreated(GL10 gl, EGLConfig config) 
     {
-    	Log.v( TAG,"onSurfaceCreated");
+    	Log.i( TAG,"onSurfaceCreated");
         /*
          * By default, OpenGL enables features that improve quality
          * but reduce performance. One might want to tweak that
@@ -156,7 +141,7 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
 		gl.glDrawElements(GL10.GL_LINE_STRIP, 5, GL10.GL_UNSIGNED_BYTE, m_lineBuffer ); 
     }
     private boolean 		m_translucentBackground;
-    private Board 			m_board;
+    private GridLockedMain 	m_mainThread;
     private IntBuffer   	m_vertexBuffer;
     private ByteBuffer  	m_indexBuffer;
     private ByteBuffer  	m_lineBuffer;
