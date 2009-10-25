@@ -1,4 +1,4 @@
-package com.zorro6666.gridlocked;
+package com.zorro666.gridlocked;
 
 import android.app.Activity;
 import android.util.Log;

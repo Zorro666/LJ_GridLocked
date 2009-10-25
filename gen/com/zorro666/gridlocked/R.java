@@ -5,7 +5,7 @@
  * should not be modified by hand.
  */
 
-package com.zorro6666.gridlocked;
+package com.zorro666.gridlocked;
 
 public final class R {
     public static final class attr {

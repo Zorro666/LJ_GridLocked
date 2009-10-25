@@ -1,4 +1,4 @@
-package com.zorro6666.gridlocked;
+package com.zorro666.gridlocked;
 
 import android.util.Log;
 
@@ -23,7 +23,7 @@ public class GridLockedMain extends Thread
     public void onStart() 
     {
     	Log.i( TAG,"onStart");
-    	m_nextTime = System.currentTimeMillis() + 1;
+    	m_nextTime = System.currentTimeMillis() + 20;
     	if (m_state == STATE_STOPPED)
     	{
     		setState(STATE_READY);
@@ -85,7 +85,7 @@ public class GridLockedMain extends Thread
 		{
 			return;
 		}
-		m_nextTime = now + 1;
+		m_nextTime = now + 20;
 		m_boardGame.update();
 		
 		// Update the render board from game board
