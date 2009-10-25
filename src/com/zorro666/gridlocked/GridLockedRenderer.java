@@ -5,6 +5,7 @@ import javax.microedition.khronos.opengles.GL10;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
 import android.util.Log;
+import android.view.MotionEvent;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -17,6 +18,9 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
     	
         m_translucentBackground = useTranslucentBackground;
         m_mainThread = mainThread;
+        m_width = 1.0f;
+        m_height = 1.0f;
+        m_ratio = 1.0f;
         
         final int zero = 		0x00000;
         final int one = 		0x10000;
@@ -24,6 +28,10 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
         final int onethird =	0x10000/3;
         final int twothird =	onethird*2;
         
+    	//m_touchX = -1.0f;
+    	//m_touchY = -1.0f;
+    	m_touchAction = MotionEvent.ACTION_CANCEL;
+    	
         {
         	int rectangleVertices[] = 	{
         			zero, 	zero, 	zero,
@@ -117,7 +125,7 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
 
         gl.glMatrixMode(GL10.GL_PROJECTION);
         gl.glLoadIdentity();
-		GLU.gluOrtho2D(gl,0.0f, 1.0f, 0.0f, 1.0f);
+		GLU.gluOrtho2D(gl,0.0f, 1.0f, 1.0f, 0.0f);
 		
         gl.glMatrixMode(GL10.GL_MODELVIEW);
         gl.glLoadIdentity();
@@ -125,18 +133,39 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
         gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
 
-        //gl.glFrontFace(GL10.GL_CW);
-        //gl.glDepthFunc(GL10.GL_LEQUAL);
+        gl.glFrontFace(GL10.GL_CCW);
+        gl.glDepthFunc(GL10.GL_LEQUAL);
+        
         //gl.glColor4f( 1.0f, 0.0f, 0.5f, 1.0f );
         //drawOutlineRectangle(gl, 0.1f, 0.1f, 0.3f, 0.3f );
-        Board board = m_mainThread.GetRenderBoard();
+        Board board = m_mainThread.getRenderBoard();
         synchronized( board)
         {
         	board.draw(gl, this);
         }
 
-        gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
+        // Draw where the touch event is
+        if ( m_touchAction == MotionEvent.ACTION_DOWN )
+        {
+        	float touchX = m_mainThread.getTouchX() / m_width;
+        	float touchY = m_mainThread.getTouchY() / m_height;
+        	touchX = Math.round( touchX * 8.0f - 0.5f ) / 8.0f;
+        	touchY = Math.round( touchY * (8.0f/m_ratio) - 0.5f ) / (8.0f/m_ratio);
+        	
+        	gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
+        	gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
+        	
+        	gl.glColor4f( 1.0f, 0.5f, 0.8f, 1.0f );
+        	drawOutlineRectangle(gl, touchX, touchY, 0.1f, 0.1f*m_ratio );
+        }
+        
+        gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
+        
+    }
+    public void onTouchDown()
+    {
+    	m_touchAction = MotionEvent.ACTION_DOWN;
     }
 
     public void onSurfaceChanged(GL10 gl, int width, int height) 
@@ -150,10 +179,14 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
     	 * be set when the viewport is resized.
     	 */
     	
-    	float ratio = (float) width / height;
+    	m_width = (float)width;
+    	m_height = (float)height;
+    	float ratio = m_width / m_height;
+    	
     	gl.glMatrixMode(GL10.GL_PROJECTION);
     	gl.glLoadIdentity();
     	gl.glFrustumf(-ratio, ratio, -1, 1, 1, 10);
+    	m_ratio = ratio;
     }
 
     public void onSurfaceCreated(GL10 gl, EGLConfig config) 
@@ -184,6 +217,10 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
          gl.glShadeModel(GL10.GL_SMOOTH);
          gl.glEnable(GL10.GL_DEPTH_TEST);
          
+    }
+    public float getRatio()
+    {
+    	return m_ratio;
     }
     public void drawOutlineTriangle(GL10 gl, float x0, float y0, float width, float height)
     {
@@ -221,6 +258,8 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
 		gl.glColor4f(1.0f,0,0.5f,1.0f);
 		gl.glDrawElements(GL10.GL_LINE_STRIP, 5, GL10.GL_UNSIGNED_BYTE, m_rectangleLineBuffer ); 
     }
+    private static final String TAG = "GLR";
+    
     private boolean 		m_translucentBackground;
     private GridLockedMain 	m_mainThread;
     
@@ -236,5 +275,8 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
     private ByteBuffer  	m_hexagonIndexBuffer;
     private ByteBuffer  	m_hexagonLineBuffer;
     
-    private static final String TAG = "GLR";
+    private int				m_touchAction;
+    private float			m_width;
+    private float			m_height;
+    private float			m_ratio;
 }

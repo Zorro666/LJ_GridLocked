@@ -14,11 +14,21 @@ public class GridLockedMain extends Thread
     	m_boardRender = m_boards[1];
         m_state = STATE_STOPPED;
         m_run = false;
+        m_touchX = 0.0f;
+        m_touchY = 0.0f;
     }
     
-    public Board GetRenderBoard()
+    public Board getRenderBoard()
     {
     	return m_boardRender;
+    }
+    public float getTouchX()
+    {
+    	return m_touchX;
+    }
+    public float getTouchY()
+    {
+    	return m_touchY;
     }
     public void onStart() 
     {
@@ -91,6 +101,11 @@ public class GridLockedMain extends Thread
 		// Update the render board from game board
 		updateRenderBoard();
 	}
+	public void setTouchDown( float x, float y )
+	{
+		m_touchX = x;
+		m_touchY = y;
+	}
 	private void updateRenderBoard()
 	{
 		// Need to sync with the render thread
@@ -111,6 +126,8 @@ public class GridLockedMain extends Thread
 	private Board				m_boardGame;
 	private Board				m_boardRender;
 	private Board[]				m_boards;
+	private float				m_touchX;
+	private float				m_touchY;
 	
     private static final String TAG = "GLM";
 }

@@ -80,8 +80,9 @@ public class Piece
 		}
 		int x = m_x;
 		int y = m_y;
+		float ratio = renderer.getRatio();
 		float width =  ( 1.0f / 8.0f );
-		float height = width * ( 3.0f / 4.0f );
+		float height = width * ratio;
 		float x0 = x * width;
 		float y0 = y * height;
 		

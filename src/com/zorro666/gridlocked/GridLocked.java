@@ -3,30 +3,23 @@ package com.zorro666.gridlocked;
 import android.app.Activity;
 import android.util.Log;
 import android.os.Bundle;
-import android.opengl.GLSurfaceView;
 import android.view.ViewGroup;
 
 public class GridLocked extends Activity 
 {
     /** Called when the activity is first created. */
-	
-	
     @Override
     public void onCreate(Bundle savedInstanceState) 
     {
     	Log.i( TAG,"onCreate");
         super.onCreate(savedInstanceState);
         
-        m_gLSurfaceView = new GLSurfaceView( this );
-        
         m_myMain = new GridLockedMain();
-        m_myRenderer = new GridLockedRenderer(true,m_myMain);
-        	
+        m_myGLSurfaceView = new GridLockedGLView( this, m_myMain );
+        
         setContentView( R.layout.main );
         ViewGroup absLayout = (ViewGroup)findViewById( R.id.RenderView );
-        absLayout.addView( m_gLSurfaceView );
-        
-       	m_gLSurfaceView.setRenderer(m_myRenderer);
+        absLayout.addView( m_myGLSurfaceView );
     }
     
     @Override
@@ -47,7 +40,7 @@ public class GridLocked extends Activity
     {
     	Log.i( TAG,"onResume");
         super.onResume();
-        m_gLSurfaceView.onResume();
+        m_myGLSurfaceView.onResume();
         m_myMain.onResume();
     }
 
@@ -56,7 +49,7 @@ public class GridLocked extends Activity
     {
     	Log.i( TAG,"onPause");
         super.onPause();
-        m_gLSurfaceView.onPause();
+        m_myGLSurfaceView.onPause();
         m_myMain.onPause();
     }
     @Override
@@ -75,8 +68,7 @@ public class GridLocked extends Activity
         m_myMain.onDestroy();
     }
     
-    private GLSurfaceView 		m_gLSurfaceView;
-    private GridLockedRenderer 	m_myRenderer;
+    private GridLockedGLView 	m_myGLSurfaceView;
     private GridLockedMain		m_myMain;
     
     private static final String TAG = "GL";

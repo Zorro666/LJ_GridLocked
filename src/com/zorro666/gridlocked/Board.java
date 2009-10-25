@@ -9,7 +9,7 @@ public class Board
 	public Board()
 	{
     	Log.i( TAG,"Construct");
-        m_generator = new Random();
+        s_generator = new Random();
     	m_boardSquares = new Piece[MAX_NUM_COLUMNS][MAX_NUM_ROWS];
     	
     	// Create the board
@@ -30,8 +30,8 @@ public class Board
     	{
     		for ( int y = 0; y < MAX_NUM_ROWS; ++y )
     		{
-    			int type = m_generator.nextInt(Piece.MAX_NUM_TYPES);
-    			int colour = m_generator.nextInt(Piece.MAX_NUM_COLOURS);
+    			int type = s_generator.nextInt(Piece.MAX_NUM_TYPES);
+    			int colour = s_generator.nextInt(Piece.MAX_NUM_COLOURS);
     			addPiece( x, y, type, colour );
     		}
     	}
@@ -43,8 +43,6 @@ public class Board
 	public void draw( GL10 gl, GridLockedRenderer renderer )
 	{
     	//Log.i( TAG,"draw");
-   		gl.glFrontFace(GL10.GL_CW);
-   		gl.glDepthFunc(GL10.GL_LEQUAL);
     	for ( int x = 0; x < MAX_NUM_COLUMNS; ++x )
     	{
     		for ( int y = 0; y < MAX_NUM_ROWS; ++y )
@@ -58,21 +56,21 @@ public class Board
 	}
 	public void update()
 	{
-		if ( m_generator.nextInt(100) < 1 )
+		if ( s_generator.nextInt(100) < 10 )
 		{
 /*
-			int x = m_generator.nextInt(MAX_NUM_COLUMNS);
-			int y = m_generator.nextInt(MAX_NUM_ROWS);
-			int type = m_generator.nextInt(Piece.MAX_NUM_TYPES);
-			int colour = m_generator.nextInt(Piece.MAX_NUM_COLOURS);
+			int x = s_generator.nextInt(MAX_NUM_COLUMNS);
+			int y = s_generator.nextInt(MAX_NUM_ROWS);
+			int type = s_generator.nextInt(Piece.MAX_NUM_TYPES);
+			int colour = s_generator.nextInt(Piece.MAX_NUM_COLOURS);
 			addPiece( x, y, type, colour );
 */
 			// Move row or column
-			if ( m_generator.nextInt(100) > 50 )
+			if ( s_generator.nextInt(100) > 50 )
 			{
 				// Piece a random row and move it
-				int row = m_generator.nextInt(MAX_NUM_ROWS);
-				if ( m_generator.nextInt(100) > 100 )
+				int row = s_generator.nextInt(MAX_NUM_ROWS);
+				if ( s_generator.nextInt(100) > 100 )
 				{
 					moveRow( row, RIGHT );
 				}
@@ -84,8 +82,8 @@ public class Board
 			else
 			{
 				// Piece a random column and move it
-				int column = m_generator.nextInt(MAX_NUM_COLUMNS);
-				if ( m_generator.nextInt(100) > 50 )
+				int column = s_generator.nextInt(MAX_NUM_COLUMNS);
+				if ( s_generator.nextInt(100) > 50 )
 				{
 					moveColumn( column, UP );
 				}
@@ -174,7 +172,7 @@ public class Board
     static final private int	RIGHT = 	+1;
     
     private Piece[][]			m_boardSquares;
-    static private Random		m_generator;
+    static private Random		s_generator;
     
     private static final String TAG = "BD";
 }
