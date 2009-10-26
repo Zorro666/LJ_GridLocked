@@ -28,8 +28,6 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
         final int onethird =	0x10000/3;
         final int twothird =	onethird*2;
         
-    	//m_touchX = -1.0f;
-    	//m_touchY = -1.0f;
     	m_touchAction = MotionEvent.ACTION_CANCEL;
     	
         {
@@ -147,8 +145,9 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
         // Draw where the touch event is
         if ( m_touchAction == MotionEvent.ACTION_DOWN )
         {
-        	float touchX = m_mainThread.getTouchX() / m_width;
-        	float touchY = m_mainThread.getTouchY() / m_height;
+        	float touchX = m_mainThread.getTouchX();
+        	float touchY = m_mainThread.getTouchY();
+        	// Convert to board co-ordinates
         	touchX = Math.round( touchX * 8.0f - 0.5f ) / 8.0f;
         	touchY = Math.round( touchY * (8.0f/m_ratio) - 0.5f ) / (8.0f/m_ratio);
         	
@@ -166,6 +165,10 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
     public void onTouchDown()
     {
     	m_touchAction = MotionEvent.ACTION_DOWN;
+    }
+    public void onTouchUp()
+    {
+    	m_touchAction = MotionEvent.ACTION_UP;
     }
 
     public void onSurfaceChanged(GL10 gl, int width, int height) 

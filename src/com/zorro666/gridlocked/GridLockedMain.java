@@ -1,6 +1,7 @@
 package com.zorro666.gridlocked;
 
 import android.util.Log;
+import android.view.MotionEvent;
 
 public class GridLockedMain extends Thread 
 {
@@ -16,6 +17,11 @@ public class GridLockedMain extends Thread
         m_run = false;
         m_touchX = 0.0f;
         m_touchY = 0.0f;
+        m_touchAction = MotionEvent.ACTION_CANCEL;
+    }
+    public void setView( GridLockedGLView view )
+    {
+    	m_myView = view;
     }
     
     public Board getRenderBoard()
@@ -101,7 +107,55 @@ public class GridLockedMain extends Thread
 		// Update the render board from game board
 		updateRenderBoard();
 	}
-	public void setTouchDown( float x, float y )
+	public void setTouchAction( int action )
+	{
+		// A click !
+		if ( action == MotionEvent.ACTION_UP )
+		{
+			if ( ( m_touchAction == MotionEvent.ACTION_DOWN ) || ( m_touchAction == MotionEvent.ACTION_MOVE ) )
+			{
+				float ratio = m_myView.getRatio();
+				// Move a row or column
+				int row = Board.convertToRow( m_touchY, ratio );
+				int column = Board.convertToColumn( m_touchX );
+				
+				if ( row > column ) 
+				{
+					// In the bottom-left triangle
+					if ( row < ( Board.MAX_NUM_COLUMNS - column ) )
+					{
+						// In the left-quadrant
+						// Move the row right
+						m_boardGame.moveRow( row, Board.RIGHT );
+					}
+					else
+					{
+						// In the bottom-quadrant
+						// Move the column up
+						m_boardGame.moveColumn( column, Board.UP );
+					}
+				}
+				else
+				{
+					// In the top-right triangle
+					if ( row < ( Board.MAX_NUM_COLUMNS - column ) )
+					{
+						// In the top-quadrant
+						// Move the column down
+						m_boardGame.moveColumn( column, Board.DOWN );
+					}
+					else
+					{
+						// In the right-quadrant
+						// Move the row left
+						m_boardGame.moveRow( row, Board.LEFT );
+					}
+				}
+			}
+		}
+		m_touchAction = action;
+	}
+	public void setTouchPosition( float x, float y )
 	{
 		m_touchX = x;
 		m_touchY = y;
@@ -128,6 +182,8 @@ public class GridLockedMain extends Thread
 	private Board[]				m_boards;
 	private float				m_touchX;
 	private float				m_touchY;
+	private int					m_touchAction;
+    private GridLockedGLView 	m_myView;
 	
     private static final String TAG = "GLM";
 }

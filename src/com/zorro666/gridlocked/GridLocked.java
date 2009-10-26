@@ -16,6 +16,7 @@ public class GridLocked extends Activity
         
         m_myMain = new GridLockedMain();
         m_myGLSurfaceView = new GridLockedGLView( this, m_myMain );
+        m_myMain.setView( m_myGLSurfaceView );
         
         setContentView( R.layout.main );
         ViewGroup absLayout = (ViewGroup)findViewById( R.id.RenderView );

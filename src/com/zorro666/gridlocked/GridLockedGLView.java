@@ -20,10 +20,13 @@ public class GridLockedGLView extends GLSurfaceView
 		int action = motionEvent.getAction();
 		if ( action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE )
 		{
-			float x = motionEvent.getX();
-			float y = motionEvent.getY();
-			m_myMainThread.setTouchDown( x, y );
+			float width = getWidth();
+			float height = getHeight();
+			float x = motionEvent.getX() / width;
+			float y = motionEvent.getY() / height;
+			m_myMainThread.setTouchPosition( x, y );
 		}
+		m_myMainThread.setTouchAction( action );
 		
 		if ( action == MotionEvent.ACTION_DOWN )
 		{
@@ -39,8 +42,29 @@ public class GridLockedGLView extends GLSurfaceView
 			);
 			return true;
 		}
+		if ( action == MotionEvent.ACTION_UP )
+		{
+			queueEvent( 
+					new Runnable() 
+					{
+						// This method will be called on the rendering thread:
+						public void run() 
+						{
+							m_myRenderer.onTouchUp();
+						}
+					}
+			);
+			return true;
+		}
 		return super.onTouchEvent( motionEvent );
 	}
+    public float getRatio()
+    {
+    	float width = getWidth();
+    	float height = getHeight();
+    	float ratio = width / height;
+    	return ratio;
+    }
     private GridLockedRenderer 	m_myRenderer;
     private GridLockedMain		m_myMainThread;
 }
