@@ -10,6 +10,8 @@ public class Piece
 		m_y = 0;
 		m_type = EMPTY;
 		m_colour = EMPTY;
+		m_match = false;
+		m_count = 0;
 	}
 	public Piece( int x, int y, int type, int colour )
 	{
@@ -17,6 +19,8 @@ public class Piece
 		m_y = y;
 		m_type = type;
 		m_colour = colour;
+		m_match = false;
+		m_count = 0;
 	}
 	public Piece( int x, int y )
 	{
@@ -24,15 +28,46 @@ public class Piece
 		m_y = y;
 		m_type = EMPTY;
 		m_colour = EMPTY;
+		m_match = false;
+		m_count = 0;
 	}
 	public void empty()
 	{
 		update(EMPTY,EMPTY);
 	}
+	public boolean isActive()
+	{
+		return ( m_type != EMPTY );
+	}
+	public boolean isMatch()
+	{
+		return ( ( m_type != EMPTY ) && ( m_match == true ) );
+	}
+	public int getType()
+	{
+		return m_type;
+	}
+	public int getColour()
+	{
+		return m_colour;
+	}
+	public int getCount()
+	{
+		return m_count;
+	}
+	public void updateCount()
+	{
+		m_count--;
+		if ( m_count < 0 )
+		{
+			empty();
+		}
+	}
 	public void update( int type, int colour )
 	{
 		m_type = type;
 		m_colour = colour;
+		m_match = false;
 	}
 	public void update( Piece otherPiece )
 	{
@@ -78,6 +113,14 @@ public class Piece
 				return;
 			}
 		}
+		// Flash it
+		if ( m_match )
+		{
+			if ( ( m_count % 2 ) == 0 )
+			{
+				gl.glColor4f( 1.0f, 0.8f, 0.2f, 1.0f );
+			}
+		}
 		int x = m_x;
 		int y = m_y;
 		float ratio = renderer.getRatio();
@@ -120,6 +163,16 @@ public class Piece
 		m_y = otherPiece.m_y;
 		m_type = otherPiece.m_type;
 		m_colour = otherPiece.m_colour;
+		m_match = otherPiece.m_match;
+		m_count = otherPiece.m_count;
+	}
+	public void setMatch()
+	{
+		if ( m_match == false )
+		{
+			m_match = true;
+			m_count = FLASH_COUNT_LENGTH;
+		}
 	}
 	
 	static public final int EMPTY = 			0;
@@ -136,8 +189,12 @@ public class Piece
 	static public final int COLOUR_GREEN = 		5;
 	static public final int MAX_NUM_COLOURS =	6;
 	
+	static private final int FLASH_COUNT_LENGTH =	50;
+		
     private int   		m_x;
     private int  		m_y;
     private int  		m_type;
     private int			m_colour;
+    private boolean		m_match;
+    private int			m_count;
 }

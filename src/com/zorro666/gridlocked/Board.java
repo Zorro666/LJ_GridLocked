@@ -56,14 +56,59 @@ public class Board
 	}
 	public void update()
 	{
-		if ( false )
+		if ( s_generator.nextInt(100) < 0 )
 		{
 			randomTesting();
 		}
+		// Clear out the matches from the previous frame
+    	for ( int x = 0; x < MAX_NUM_COLUMNS; ++x )
+    	{
+    		for ( int y = 0; y < MAX_NUM_ROWS; ++y )
+    		{
+    			Piece piece = m_boardSquares[x][y];
+    			if ( piece.isMatch() )
+    			{
+    				piece.updateCount();
+    			}
+    		}
+    	}
+		// Look over the board and find pieces which match
+    	for ( int x = 0; x < MAX_NUM_COLUMNS; ++x )
+    	{
+    		for ( int y = 0; y < MAX_NUM_ROWS; ++y )
+    		{
+    			Piece piece = m_boardSquares[x][y];
+    			if ( piece.isActive() )
+    			{
+    				// Check horizontally for types which match
+    				int type = piece.getType();
+    				int matchCount = 0;
+    				for ( int x2 = x+1; x2 < MAX_NUM_COLUMNS; ++x2 )
+    				{
+    					Piece newPiece = m_boardSquares[x2][y];
+    					if ( newPiece.isActive() )
+    					{
+    						int newType = newPiece.getType();
+    						if ( newType == type )
+    						{
+    							newPiece.setMatch();
+    							matchCount++;
+    							continue;
+    						}
+    					}
+    					break;
+    				}
+    				if ( matchCount > 0 )
+    				{
+    					piece.setMatch();
+    				}
+    			}
+    		}
+    	}
 	}
 	private void randomTesting()
 	{
-		if ( s_generator.nextInt(100) < 0 )
+		if ( s_generator.nextInt(100) < 10 )
 		{
 			// Move row or column
 			if ( s_generator.nextInt(100) > 50 )
