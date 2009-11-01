@@ -2,4 +2,5 @@
 <resources>
     <string name="hello">Welcome to GridLocked</string>
     <string name="app_name">GridLocked</string>
+    <string name="ResetButton">Reset</string>
 </resources>

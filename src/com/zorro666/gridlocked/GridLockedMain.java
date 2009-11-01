@@ -19,9 +19,9 @@ public class GridLockedMain extends Thread
         m_touchY = 0.0f;
         m_touchAction = MotionEvent.ACTION_CANCEL;
     }
-    public void setView( GridLockedGLView view )
+    public void setUI( GridLocked ui )
     {
-    	m_myView = view;
+    	m_myUI = ui;
     }
     
     public Board getRenderBoard()
@@ -102,7 +102,13 @@ public class GridLockedMain extends Thread
 			return;
 		}
 		m_nextTime = now + 20;
+		int oldScore = m_boardGame.getScore();
 		m_boardGame.update();
+		int newScore = m_boardGame.getScore();
+		if ( newScore != oldScore )
+		{
+			m_myUI.setScore( newScore );
+		}
 		
 		// Update the render board from game board
 		updateRenderBoard();
@@ -114,7 +120,7 @@ public class GridLockedMain extends Thread
 		{
 			if ( ( m_touchAction == MotionEvent.ACTION_DOWN ) || ( m_touchAction == MotionEvent.ACTION_MOVE ) )
 			{
-				float ratio = m_myView.getRatio();
+				float ratio = m_myUI.getRatio();
 				// Move a row or column
 				int row = Board.convertToRow( m_touchY, ratio );
 				int column = Board.convertToColumn( m_touchX );
@@ -168,6 +174,10 @@ public class GridLockedMain extends Thread
 			m_boardRender.copy(m_boardGame);
 		}
 	}
+	public void resetButton()
+	{
+		m_boardGame.reset();
+	}
     
     public static final int STATE_PAUSED 	= 1;
     public static final int STATE_READY 	= 2;
@@ -183,7 +193,7 @@ public class GridLockedMain extends Thread
 	private float				m_touchX;
 	private float				m_touchY;
 	private int					m_touchAction;
-    private GridLockedGLView 	m_myView;
+    private GridLocked 			m_myUI;
 	
     private static final String TAG = "GLM";
 }

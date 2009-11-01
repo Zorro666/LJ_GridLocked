@@ -55,16 +55,26 @@ public class Piece
 	{
 		return m_count;
 	}
-	public void updateCount()
+	public boolean updateCount()
 	{
 		m_count--;
 		if ( m_count < 0 )
 		{
 			empty();
+			return true;
 		}
+		return false;
 	}
 	public void update( int type, int colour )
 	{
+ 		if ( type == Piece.EMPTY )
+ 		{
+ 			colour = Piece.EMPTY;
+ 		}
+ 		if ( colour == Piece.EMPTY )
+ 		{
+ 			type = Piece.EMPTY;
+ 		}
 		m_type = type;
 		m_colour = colour;
 		m_match = false;
@@ -81,6 +91,7 @@ public class Piece
 		{
 			case EMPTY:
 			{
+				gl.glColor4f( 1.0f, 0.5f, 0.8f, 1.0f );
 				return;
 			}
 			case COLOUR_WHITE:
@@ -116,9 +127,9 @@ public class Piece
 		// Flash it
 		if ( m_match )
 		{
-			if ( ( m_count % 2 ) == 0 )
+			if ( ( m_count % FLASH_COUNT_PERIOD ) > FLASH_COUNT_PERIOD/2 )
 			{
-				gl.glColor4f( 1.0f, 0.8f, 0.2f, 1.0f );
+				gl.glColor4f( 1.0f, 0.5f, 0.8f, 1.0f );
 			}
 		}
 		int x = m_x;
@@ -128,6 +139,10 @@ public class Piece
 		float height = width * ratio;
 		float x0 = x * width;
 		float y0 = y * height;
+		x0 += width * 0.1f;
+		y0 += height * 0.1f;
+		width *= 0.8f;
+		height *= 0.8f;
 		
 		int type = m_type;
 		switch ( type )
@@ -189,7 +204,8 @@ public class Piece
 	static public final int COLOUR_GREEN = 		5;
 	static public final int MAX_NUM_COLOURS =	6;
 	
-	static private final int FLASH_COUNT_LENGTH =	50;
+	static private final int FLASH_COUNT_PERIOD =	32;
+	static private final int FLASH_COUNT_LENGTH =	FLASH_COUNT_PERIOD * 10;
 		
     private int   		m_x;
     private int  		m_y;

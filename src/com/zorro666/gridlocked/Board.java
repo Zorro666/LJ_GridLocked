@@ -11,6 +11,9 @@ public class Board
     	Log.i( TAG,"Construct");
         s_generator = new Random();
     	m_boardSquares = new Piece[MAX_NUM_COLUMNS][MAX_NUM_ROWS];
+    	int maxPossibleMatches = Math.max( MAX_NUM_COLUMNS, MAX_NUM_ROWS );
+    	m_matchPieces = new Piece[maxPossibleMatches];
+    	m_score = 0;
     	
     	// Create the board
     	for ( int x = 0; x < MAX_NUM_COLUMNS; ++x )
@@ -21,6 +24,11 @@ public class Board
     		}
     	}
     	
+    	reset();
+	}
+	public void reset()
+	{
+    	m_score = 0;
     	randomBoard();
 	}
 	private void randomBoard()
@@ -30,11 +38,15 @@ public class Board
     	{
     		for ( int y = 0; y < MAX_NUM_ROWS; ++y )
     		{
-    			int type = s_generator.nextInt(Piece.MAX_NUM_TYPES);
-    			int colour = s_generator.nextInt(Piece.MAX_NUM_COLOURS);
-    			addPiece( x, y, type, colour );
+    			addRandomPiece( x, y );
     		}
     	}
+	}
+	private void addRandomPiece( int x, int y )
+	{
+		int type = s_generator.nextInt(Piece.MAX_NUM_TYPES);
+ 		int colour = s_generator.nextInt(Piece.MAX_NUM_COLOURS);
+   		addPiece( x, y, type, colour );
 	}
     public void addPiece( int x, int y, int type, int colour )
     {
@@ -68,7 +80,11 @@ public class Board
     			Piece piece = m_boardSquares[x][y];
     			if ( piece.isMatch() )
     			{
-    				piece.updateCount();
+    				if ( piece.updateCount() == true )
+    				{
+    					// Some scoring happened
+    					addScore( 10 );
+    				}
     			}
     		}
     	}
@@ -80,9 +96,11 @@ public class Board
     			Piece piece = m_boardSquares[x][y];
     			if ( piece.isActive() )
     			{
+    				int matchCount;
+    				
     				// Check horizontally for types which match
     				int type = piece.getType();
-    				int matchCount = 0;
+    				matchCount = 0;
     				for ( int x2 = x+1; x2 < MAX_NUM_COLUMNS; ++x2 )
     				{
     					Piece newPiece = m_boardSquares[x2][y];
@@ -91,16 +109,51 @@ public class Board
     						int newType = newPiece.getType();
     						if ( newType == type )
     						{
-    							newPiece.setMatch();
+    							m_matchPieces[matchCount] = newPiece;
     							matchCount++;
     							continue;
     						}
     					}
+    					x2 = MAX_NUM_COLUMNS;
     					break;
     				}
-    				if ( matchCount > 0 )
+    				// 3 or more in a row
+    				if ( matchCount > 1 )
     				{
     					piece.setMatch();
+    					for ( int p = 0; p < matchCount; ++p )
+    					{
+    						m_matchPieces[p].setMatch();
+    					}
+    				}
+    				
+    				// Check vertically for types which match
+    				int colour = piece.getColour();
+    				matchCount = 0;
+    				for ( int y2 = y+1; y2 < MAX_NUM_ROWS; ++y2 )
+    				{
+    					Piece newPiece = m_boardSquares[x][y2];
+    					if ( newPiece.isActive() )
+    					{
+    						int newColour = newPiece.getColour();
+    						if ( newColour == colour )
+    						{
+    							m_matchPieces[matchCount] = newPiece;
+    							matchCount++;
+    							continue;
+    						}
+    					}
+    					y2 = MAX_NUM_ROWS;
+    					break;
+    				}
+    				// 3 or more in a column
+    				if ( matchCount > 1 )
+    				{
+    					piece.setMatch();
+    					for ( int p = 0; p < matchCount; ++p )
+    					{
+    						m_matchPieces[p].setMatch();
+    					}
     				}
     			}
     		}
@@ -167,6 +220,8 @@ public class Board
    			x = xNew;
     	}
    		m_boardSquares[xEnd][row].empty();
+   		// Add a new random piece in the new place
+   		addRandomPiece( xEnd, row );
 	}
 	public void moveColumn( int column, int direction )
 	{
@@ -196,6 +251,8 @@ public class Board
    			y = yNew;
     	}
    		m_boardSquares[column][yEnd].empty();
+   		// Add a new random piece in the new place
+   		addRandomPiece( column, yEnd );
 	}
 	public void copy( Board otherBoard )
 	{
@@ -207,6 +264,14 @@ public class Board
     			m_boardSquares[x][y].copy( piece );
     		}
    		}
+	}
+	public int getScore()
+	{
+		return m_score;
+	}
+	private void addScore( int delta )
+	{
+		m_score += delta;
 	}
 	static public int convertToRow( float y, float ratio )
 	{
@@ -227,8 +292,11 @@ public class Board
     static final public int	LEFT = 				-1;
     static final public int	RIGHT = 			+1;
     
-    private Piece[][]			m_boardSquares;
     static private Random		s_generator;
+    
+    private Piece[][]			m_boardSquares;
+    private Piece[]				m_matchPieces;
+    private int					m_score;
     
     private static final String TAG = "BD";
 }
