@@ -107,7 +107,7 @@ public class GridLockedMain extends Thread
 		int newScore = m_boardGame.getScore();
 		if ( newScore != oldScore )
 		{
-			m_myUI.setScore( newScore );
+			m_myUI.setScore( 666 + newScore );
 		}
 		
 		// Update the render board from game board
@@ -125,36 +125,35 @@ public class GridLockedMain extends Thread
 				int row = Board.convertToRow( m_touchY, ratio );
 				int column = Board.convertToColumn( m_touchX );
 				
-				if ( row > column ) 
+				if ( row != column )
 				{
-					// In the bottom-left triangle
-					if ( row < ( Board.MAX_NUM_COLUMNS - column ) )
+					if ( column == -1 )
 					{
-						// In the left-quadrant
-						// Move the row right
-						m_boardGame.moveRow( row, Board.RIGHT );
+						if ( ( row >= 0 ) && ( row < Board.MAX_NUM_ROWS ) )
+						{
+							m_boardGame.moveRow( row, Board.RIGHT );
+						}
 					}
-					else
+					if ( column == Board.MAX_NUM_COLUMNS )
 					{
-						// In the bottom-quadrant
-						// Move the column up
-						m_boardGame.moveColumn( column, Board.UP );
+						if ( ( row >= 0 ) && ( row < Board.MAX_NUM_ROWS ) )
+						{
+							m_boardGame.moveRow( row, Board.LEFT );
+						}
 					}
-				}
-				else
-				{
-					// In the top-right triangle
-					if ( row < ( Board.MAX_NUM_COLUMNS - column ) )
+					if ( row == -1 )
 					{
-						// In the top-quadrant
-						// Move the column down
-						m_boardGame.moveColumn( column, Board.DOWN );
+						if ( ( column >= 0 ) && ( column < Board.MAX_NUM_COLUMNS ) )
+						{
+							m_boardGame.moveColumn( column, Board.DOWN );
+						}
 					}
-					else
+					if ( row == Board.MAX_NUM_ROWS )
 					{
-						// In the right-quadrant
-						// Move the row left
-						m_boardGame.moveRow( row, Board.LEFT );
+						if ( ( column >= 0 ) && ( column < Board.MAX_NUM_COLUMNS ) )
+						{
+							m_boardGame.moveColumn( column, Board.UP );
+						}
 					}
 				}
 			}
@@ -177,6 +176,7 @@ public class GridLockedMain extends Thread
 	public void resetButton()
 	{
 		m_boardGame.reset();
+		m_myUI.setScore( 666 + 0 );
 	}
     
     public static final int STATE_PAUSED 	= 1;

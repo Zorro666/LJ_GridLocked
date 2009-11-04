@@ -54,7 +54,6 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
         	m_rectangleLineBuffer.put(rectangleLineIndices);
         	m_rectangleLineBuffer.position(0);
         }
-        
         {
         	int triangleVertices[] = 	{
         			zero, 	zero, 	zero,
@@ -105,6 +104,41 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
         	m_hexagonLineBuffer.put(hexagonLineIndices);
         	m_hexagonLineBuffer.position(0);
         }
+        {
+        	int horizontalVertices[] = 	{
+        			zero, 	zero, 	zero,
+        			one, 	zero, 	zero,
+        								};
+        	byte horizontalLineIndices[] = { 0, 1 };
+        	
+        	ByteBuffer vbb = ByteBuffer.allocateDirect(horizontalVertices.length*4);
+        	vbb.order(ByteOrder.nativeOrder());
+        	m_horizontalVertexBuffer = vbb.asIntBuffer();
+        	m_horizontalVertexBuffer.put(horizontalVertices);
+        	m_horizontalVertexBuffer.position(0);
+        	
+        	m_horizontalLineBuffer = ByteBuffer.allocateDirect(horizontalLineIndices.length);
+        	m_horizontalLineBuffer.put(horizontalLineIndices);
+        	m_horizontalLineBuffer.position(0);
+        }
+        {
+        	int verticalVertices[] = 	{
+        			zero, 	zero, 	zero,
+        			zero, 	one, 	zero,
+        								};
+        	byte verticalLineIndices[] = { 0, 1 };
+        	
+        	ByteBuffer vbb = ByteBuffer.allocateDirect(verticalVertices.length*4);
+        	vbb.order(ByteOrder.nativeOrder());
+        	m_verticalVertexBuffer = vbb.asIntBuffer();
+        	m_verticalVertexBuffer.put(verticalVertices);
+        	m_verticalVertexBuffer.position(0);
+        	
+        	m_verticalLineBuffer = ByteBuffer.allocateDirect(verticalLineIndices.length);
+        	m_verticalLineBuffer.put(verticalLineIndices);
+        	m_verticalLineBuffer.position(0);
+        }
+        
     }
     public void onDrawFrame(GL10 gl) 
     {
@@ -147,15 +181,55 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
         {
         	float touchX = m_mainThread.getTouchX();
         	float touchY = m_mainThread.getTouchY();
-        	// Convert to board co-ordinates
-        	touchX = Math.round( touchX * 8.0f - 0.5f ) / 8.0f;
-        	touchY = Math.round( touchY * (8.0f/m_ratio) - 0.5f ) / (8.0f/m_ratio);
+			int row = Board.convertToRow( touchY, m_ratio );
+			int column = Board.convertToColumn( touchX );
+        	
+			// These settings should be in Piece or Board and referenced from a single place
+        	final float x0 = 0.1f;
+        	final float y0 = 0.1f;
+        	final float canvasWidth = ( 1.0f - x0 - x0 );
+		
+        	int x = column;
+        	int y = row;
+        	float ratio = m_ratio;
+        	float width =  ( canvasWidth / 8.0f );
+		
+        	float height = width * ratio;
+        	float xpos = x0 + x * width;
+        	float ypos = y0 + y * height;
         	
         	gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         	gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
         	
-        	gl.glColor4f( 1.0f, 0.5f, 0.8f, 1.0f );
-        	drawOutlineRectangle(gl, touchX, touchY, 0.1f, 0.1f*m_ratio );
+        	gl.glColor4f( 1.0f, 0.5f, 0.8f, 0.7f );
+        	drawOutlineRectangle(gl, xpos, ypos, 0.1f, 0.1f*m_ratio );
+        	
+        	if ( ( column >= 0 )  && ( column < Board.MAX_NUM_COLUMNS ) )
+        	{
+        		if ( row == -1 )
+        		{
+        			gl.glColor4f( 1.0f, 0.0f, 0.0f, 0.4f );
+        			drawOutlineRectangle(gl, xpos, 0.0f, 0.1f, 1.0f*m_ratio );
+        		}
+        		if ( row == Board.MAX_NUM_ROWS )
+        		{
+        			gl.glColor4f( 0.0f, 0.0f, 1.0f, 0.4f );
+        			drawOutlineRectangle(gl, xpos, 0.0f, 0.1f, 1.0f*m_ratio );
+        		}
+        	}
+        	if ( ( row >= 0 )  && ( row < Board.MAX_NUM_ROWS ) )
+        	{
+        		if ( column == -1 )
+        		{
+        			gl.glColor4f( 1.0f, 0.0f, 0.0f, 0.4f );
+        			drawOutlineRectangle(gl, 0.0f, ypos, 1.0f, 0.1f*m_ratio );
+        		}
+        		if ( column == Board.MAX_NUM_COLUMNS )
+        		{
+        			gl.glColor4f( 0.0f, 0.0f, 1.0f, 0.4f );
+        			drawOutlineRectangle(gl, 0.0f, ypos, 1.0f, 0.1f*m_ratio );
+        		}
+        	}
         }
         
         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
@@ -227,39 +301,66 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
     }
     public void drawOutlineTriangle(GL10 gl, float x0, float y0, float width, float height)
     {
+    	gl.glPushMatrix();
         gl.glVertexPointer(3, GL10.GL_FIXED, 0, m_triangleVertexBuffer);
 		gl.glTranslatef( x0, y0, 1.0f );
 		gl.glScalef( width, height, 1.0f );
 		gl.glDrawElements(GL10.GL_TRIANGLE_STRIP, 3, GL10.GL_UNSIGNED_BYTE, m_triangleIndexBuffer);
 			
-		gl.glTranslatef( 0.01f, 0.01f, 1.0f );
-		gl.glScalef( 0.99f, 0.99f, 1.0f );
 		gl.glColor4f(1.0f,0,0.5f,1.0f);
 		gl.glDrawElements(GL10.GL_LINE_STRIP, 4, GL10.GL_UNSIGNED_BYTE, m_triangleLineBuffer ); 
+		gl.glPopMatrix();
     }
     public void drawOutlineHexagon(GL10 gl, float x0, float y0, float width, float height)
     {
+    	gl.glPushMatrix();
         gl.glVertexPointer(3, GL10.GL_FIXED, 0, m_hexagonVertexBuffer);
 		gl.glTranslatef( x0, y0, 1.0f );
 		gl.glScalef( width, height, 1.0f );
 		gl.glDrawElements(GL10.GL_TRIANGLE_FAN, 8, GL10.GL_UNSIGNED_BYTE, m_hexagonIndexBuffer);
 			
-		gl.glTranslatef( 0.01f, 0.01f, 1.0f );
-		gl.glScalef( 0.99f, 0.99f, 1.0f );
 		gl.glColor4f(1.0f,0,0.5f,1.0f);
 		gl.glDrawElements(GL10.GL_LINE_STRIP, 7, GL10.GL_UNSIGNED_BYTE, m_hexagonLineBuffer ); 
+		gl.glPopMatrix();
     }
     public void drawOutlineRectangle(GL10 gl, float x0, float y0, float width, float height)
     {
+    	gl.glPushMatrix();
         gl.glVertexPointer(3, GL10.GL_FIXED, 0, m_rectangleVertexBuffer);
 		gl.glTranslatef( x0, y0, 1.0f );
 		gl.glScalef( width, height, 1.0f );
 		gl.glDrawElements(GL10.GL_TRIANGLE_STRIP, 4, GL10.GL_UNSIGNED_BYTE, m_rectangleIndexBuffer);
 			
-		gl.glTranslatef( 0.01f, 0.01f, 1.0f );
-		gl.glScalef( 0.99f, 0.99f, 1.0f );
 		gl.glColor4f(1.0f,0,0.5f,1.0f);
 		gl.glDrawElements(GL10.GL_LINE_STRIP, 5, GL10.GL_UNSIGNED_BYTE, m_rectangleLineBuffer ); 
+		gl.glPopMatrix();
+    }
+    public void drawRectangle(GL10 gl, float x0, float y0, float width, float height)
+    {
+    	gl.glPushMatrix();
+        gl.glVertexPointer(3, GL10.GL_FIXED, 0, m_rectangleVertexBuffer);
+		gl.glTranslatef( x0, y0, 1.0f );
+		gl.glScalef( width, height, 1.0f );
+		gl.glDrawElements(GL10.GL_TRIANGLE_STRIP, 4, GL10.GL_UNSIGNED_BYTE, m_rectangleIndexBuffer);
+		gl.glPopMatrix();
+    }
+    public void drawHorizontalLine(GL10 gl, float x0, float y0, float width )
+    {
+    	gl.glPushMatrix();
+        gl.glVertexPointer(3, GL10.GL_FIXED, 0, m_horizontalVertexBuffer);
+		gl.glTranslatef( x0, y0, 1.0f );
+		gl.glScalef( width, 1.0f, 1.0f );
+		gl.glDrawElements(GL10.GL_LINE_STRIP, 2, GL10.GL_UNSIGNED_BYTE, m_horizontalLineBuffer);
+		gl.glPopMatrix();
+    }
+    public void drawVerticalLine(GL10 gl, float x0, float y0, float height )
+    {
+    	gl.glPushMatrix();
+        gl.glVertexPointer(3, GL10.GL_FIXED, 0, m_verticalVertexBuffer);
+		gl.glTranslatef( x0, y0, 1.0f );
+		gl.glScalef( 1.0f, height, 1.0f );
+		gl.glDrawElements(GL10.GL_LINE_STRIP, 2, GL10.GL_UNSIGNED_BYTE, m_verticalLineBuffer);
+		gl.glPopMatrix();
     }
     private static final String TAG = "GLR";
     
@@ -277,6 +378,12 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
     private IntBuffer   	m_hexagonVertexBuffer;
     private ByteBuffer  	m_hexagonIndexBuffer;
     private ByteBuffer  	m_hexagonLineBuffer;
+    
+    private IntBuffer   	m_horizontalVertexBuffer;
+    private ByteBuffer  	m_horizontalLineBuffer;
+    
+    private IntBuffer   	m_verticalVertexBuffer;
+    private ByteBuffer  	m_verticalLineBuffer;
     
     private int				m_touchAction;
     private float			m_width;

@@ -132,15 +132,26 @@ public class Piece
 				gl.glColor4f( 1.0f, 0.5f, 0.8f, 1.0f );
 			}
 		}
+		final float x0 = 0.1f;
+		final float y0 = 0.1f;
+		final float canvasWidth = ( 1.0f - x0 - x0 );
+		
 		int x = m_x;
 		int y = m_y;
+		
 		float ratio = renderer.getRatio();
-		float width =  ( 1.0f / 8.0f );
-		float height = width * ratio;
-		float x0 = x * width;
-		float y0 = y * height;
-		x0 += width * 0.1f;
-		y0 += height * 0.1f;
+		
+		float width =  ( canvasWidth / 8.0f );
+		float height = width;
+		
+		float xpos = x0 + x * width;
+		float ypos = ( y0 + y * height );
+		xpos += width * 0.1f;
+		ypos += height * 0.1f;
+		
+		ypos *= ratio;
+		height *= ratio;
+		
 		width *= 0.8f;
 		height *= 0.8f;
 		
@@ -153,17 +164,17 @@ public class Piece
 			}
 			case TYPE_RECTANGLE:
 			{
-				renderer.drawOutlineRectangle(gl, x0, y0, width, height );
+				renderer.drawOutlineRectangle(gl, xpos, ypos, width, height );
 				break;
 			}
 			case TYPE_TRIANGLE:
 			{
-				renderer.drawOutlineTriangle(gl, x0, y0, width, height );
+				renderer.drawOutlineTriangle(gl, xpos, ypos, width, height );
 				break;
 			}
 			case TYPE_HEXAGON:
 			{
-				renderer.drawOutlineHexagon(gl, x0, y0, width, height );
+				renderer.drawOutlineHexagon(gl, xpos, ypos, width, height );
 				break;
 			}
 			default:
@@ -204,8 +215,8 @@ public class Piece
 	static public final int COLOUR_GREEN = 		5;
 	static public final int MAX_NUM_COLOURS =	6;
 	
-	static private final int FLASH_COUNT_PERIOD =	32;
-	static private final int FLASH_COUNT_LENGTH =	FLASH_COUNT_PERIOD * 10;
+	static private final int FLASH_COUNT_PERIOD =	16;
+	static private final int FLASH_COUNT_LENGTH =	FLASH_COUNT_PERIOD * 5;
 		
     private int   		m_x;
     private int  		m_y;

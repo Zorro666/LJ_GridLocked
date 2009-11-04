@@ -110,9 +110,9 @@ public class GridLocked extends Activity implements OnTouchListener, Handler.Cal
     public boolean handleMessage( Message msg )
     {
     	int newScore = msg.what;
-    	if ( newScore > 0 )
+    	if ( newScore >= 666 )
     	{
-    		updateScore( newScore );
+    		updateScore( newScore - 666 );
     		return true;
     	}
     	return false;
