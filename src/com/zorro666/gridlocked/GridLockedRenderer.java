@@ -185,36 +185,38 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
 			int column = Board.convertToColumn( touchX );
         	
 			// These settings should be in Piece or Board and referenced from a single place
-        	final float x0 = 0.1f;
-        	final float y0 = 0.1f;
-        	final float canvasWidth = ( 1.0f - x0 - x0 );
-		
+			final float x0 = Board.X_ORIGIN;
+			final float y0 = Board.Y_ORIGIN;
+			final float canvasWidth = Board.WIDTH;
+			
         	int x = column;
         	int y = row;
         	float ratio = m_ratio;
-        	float width =  ( canvasWidth / 8.0f );
-		
-        	float height = width * ratio;
-        	float xpos = x0 + x * width;
-        	float ypos = y0 + y * height;
+        	float cellWidth =  ( canvasWidth / Board.MAX_NUM_COLUMNS );
+        	float cellHeight = cellWidth * ratio;
+        	
+        	float xpos = x0 + x * cellWidth;
+        	float ypos = y0 + y * cellHeight;
         	
         	gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
         	gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
+        	gl.glEnable(GL10.GL_BLEND);
+        	gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
         	
         	gl.glColor4f( 1.0f, 0.5f, 0.8f, 0.7f );
-        	drawOutlineRectangle(gl, xpos, ypos, 0.1f, 0.1f*m_ratio );
+        	drawOutlineRectangle(gl, xpos, ypos, 0.1f, 0.1f*ratio );
         	
         	if ( ( column >= 0 )  && ( column < Board.MAX_NUM_COLUMNS ) )
         	{
         		if ( row == -1 )
         		{
         			gl.glColor4f( 1.0f, 0.0f, 0.0f, 0.4f );
-        			drawOutlineRectangle(gl, xpos, 0.0f, 0.1f, 1.0f*m_ratio );
+        			drawOutlineRectangle(gl, xpos, y0*ratio, cellWidth, canvasWidth*ratio);
         		}
         		if ( row == Board.MAX_NUM_ROWS )
         		{
         			gl.glColor4f( 0.0f, 0.0f, 1.0f, 0.4f );
-        			drawOutlineRectangle(gl, xpos, 0.0f, 0.1f, 1.0f*m_ratio );
+        			drawOutlineRectangle(gl, xpos, y0*ratio, cellWidth, canvasWidth*ratio);
         		}
         	}
         	if ( ( row >= 0 )  && ( row < Board.MAX_NUM_ROWS ) )
@@ -222,12 +224,12 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
         		if ( column == -1 )
         		{
         			gl.glColor4f( 1.0f, 0.0f, 0.0f, 0.4f );
-        			drawOutlineRectangle(gl, 0.0f, ypos, 1.0f, 0.1f*m_ratio );
+        			drawOutlineRectangle(gl, x0, ypos, canvasWidth, cellHeight);
         		}
         		if ( column == Board.MAX_NUM_COLUMNS )
         		{
         			gl.glColor4f( 0.0f, 0.0f, 1.0f, 0.4f );
-        			drawOutlineRectangle(gl, 0.0f, ypos, 1.0f, 0.1f*m_ratio );
+        			drawOutlineRectangle(gl, x0, ypos, canvasWidth, cellHeight);
         		}
         	}
         }

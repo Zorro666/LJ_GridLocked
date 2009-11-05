@@ -132,28 +132,28 @@ public class Piece
 				gl.glColor4f( 1.0f, 0.5f, 0.8f, 1.0f );
 			}
 		}
-		final float x0 = 0.1f;
-		final float y0 = 0.1f;
-		final float canvasWidth = ( 1.0f - x0 - x0 );
+		final float x0 = Board.X_ORIGIN;
+		final float y0 = Board.Y_ORIGIN;
+		final float canvasWidth = Board.WIDTH;
 		
 		int x = m_x;
 		int y = m_y;
 		
 		float ratio = renderer.getRatio();
 		
-		float width =  ( canvasWidth / 8.0f );
+		float width =  ( canvasWidth / Board.MAX_NUM_COLUMNS );
 		float height = width;
 		
 		float xpos = x0 + x * width;
 		float ypos = ( y0 + y * height );
-		xpos += width * 0.1f;
-		ypos += height * 0.1f;
+		xpos += width * Board.PIECE_OFFSET;
+		ypos += height * Board.PIECE_OFFSET;
 		
 		ypos *= ratio;
 		height *= ratio;
 		
-		width *= 0.8f;
-		height *= 0.8f;
+		width *= Board.PIECE_SCALE;
+		height *= Board.PIECE_SCALE;
 		
 		int type = m_type;
 		switch ( type )

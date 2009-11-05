@@ -55,25 +55,30 @@ public class Board
 	public void draw( GL10 gl, GridLockedRenderer renderer )
 	{
     	//Log.i( TAG,"draw");
+		
+		float ratio = renderer.getRatio();
+		float x0 = Board.X_ORIGIN;
+		float y0 = Board.Y_ORIGIN * ratio;
+		float boardWidth = Board.WIDTH;
+		float boardHeight = Board.WIDTH * ratio;
+		
 		gl.glColor4f( 0.2f, 0.2f, 0.2f, 1.0f );
-		final float x0 = 0.1f;
-		final float y0 = 0.1f * renderer.getRatio();
-		renderer.drawRectangle(gl, x0, y0, 0.8f, 0.8f*renderer.getRatio());
+		renderer.drawRectangle(gl, x0, y0, boardWidth, boardHeight);
 		
 		gl.glColor4f( 0.7f, 0.7f, 0.7f, 1.0f );
     	for ( int x = 0; x < MAX_NUM_COLUMNS; ++x )
     	{
-    		float xpos = x0 + ( x * 0.8f / (MAX_NUM_COLUMNS) );
-    		renderer.drawVerticalLine(gl, xpos, y0, 0.8f*renderer.getRatio());
+    		float xpos = x0 + ( x * Board.WIDTH / (MAX_NUM_COLUMNS) );
+    		renderer.drawVerticalLine(gl, xpos, y0, boardHeight);
     	}
-   		renderer.drawVerticalLine(gl, 0.9f, y0, 0.8f*renderer.getRatio());
+   		renderer.drawVerticalLine(gl, x0 + boardWidth, y0, boardHeight);
    		
    		for ( int y = 0; y < MAX_NUM_ROWS; ++y )
    		{
-   			float ypos = y0 + ( y * 0.8f * renderer.getRatio() / (MAX_NUM_ROWS) );
-   			renderer.drawHorizontalLine(gl, x0, ypos, 0.8f);
+   			float ypos = y0 + ( y * boardHeight / (MAX_NUM_ROWS) );
+   			renderer.drawHorizontalLine(gl, x0, ypos, boardWidth);
    		}
-		renderer.drawHorizontalLine(gl, x0, 0.9f*renderer.getRatio(), 0.8f);
+		renderer.drawHorizontalLine(gl, x0, y0 + boardWidth*ratio , boardWidth);
     		
     	for ( int x = 0; x < MAX_NUM_COLUMNS; ++x )
     	{
@@ -301,30 +306,30 @@ public class Board
 	}
 	static public int convertToRow( float y, float ratio )
 	{
-		if ( y < 0.1f )
+		if ( y < Board.Y_ORIGIN )
 		{
 			return -1;
 		}
-		if ( y > 0.9f )
+		if ( y > (Board.Y_ORIGIN + Board.WIDTH) )
 		{
 			return MAX_NUM_ROWS;
 		}
 			
        	// Convert to board co-ordinates
-       	int row = (int)( Math.round( ( ( y - 0.1f ) / 0.8f ) * ((float)MAX_NUM_ROWS/ratio) - 0.5f ) );
+       	int row = (int)( Math.round( ( ( y - Board.Y_ORIGIN ) / Board.WIDTH ) * ((float)MAX_NUM_ROWS/ratio) ) );
        	return row;
 	}
 	static public int convertToColumn( float x )
 	{
-		if ( x < 0.1f )
+		if ( x < Board.X_ORIGIN )
 		{
 			return -1;
 		}
-		if ( x > 0.9f )
+		if ( x > (Board.X_ORIGIN + Board.WIDTH) )
 		{
 			return MAX_NUM_COLUMNS;
 		}
-       	int column = (int)( Math.round( ( ( x - 0.1f ) / 0.8f ) * (float)MAX_NUM_COLUMNS - 0.5f ) );
+       	int column = (int)( Math.round( ( ( x - Board.X_ORIGIN ) / Board.WIDTH ) * (float)MAX_NUM_COLUMNS ) );
        	return column;
 	}
 	
@@ -334,6 +339,12 @@ public class Board
     static final public int	DOWN =  			+1;
     static final public int	LEFT = 				-1;
     static final public int	RIGHT = 			+1;
+    
+    static final public float WIDTH =			0.87f;
+    static public float X_ORIGIN =				( 1.0f - WIDTH ) / 2.0f;
+    static public float Y_ORIGIN =				( 1.0f - WIDTH ) / 2.0f;
+    static public float PIECE_SCALE =			0.8f;
+    static public float PIECE_OFFSET =			( 1.0f - PIECE_SCALE ) / 2.0f;
     
     static private Random		s_generator;
     
