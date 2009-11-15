@@ -3,7 +3,6 @@ package com.zorro666.gridlocked;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import android.opengl.GLSurfaceView;
-import android.opengl.GLU;
 import android.util.Log;
 import android.view.MotionEvent;
 import java.nio.ByteBuffer;
@@ -143,39 +142,24 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
     public void onDrawFrame(GL10 gl) 
     {
     	//Log.i( TAG,"onDrawFrame");
-        /*
-         * Usually, the first thing one might want to do is to clear
-         * the screen. The most efficient way of doing this is to use
-         * glClear().
-         */
-
+    	gl.glClearColor(0.4f, 0.0f, 0.2f, 1.0f );
         gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);
-
-        /*
-         * Now we're ready to draw some 3D objects
-         */
-
-        gl.glMatrixMode(GL10.GL_PROJECTION);
-        gl.glLoadIdentity();
-		GLU.gluOrtho2D(gl,0.0f, 1.0f, 1.0f, 0.0f);
-		
-        gl.glMatrixMode(GL10.GL_MODELVIEW);
-        gl.glLoadIdentity();
-
-        gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
-        gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
 
         gl.glFrontFace(GL10.GL_CCW);
         gl.glDepthFunc(GL10.GL_LEQUAL);
         
-        //gl.glColor4f( 1.0f, 0.0f, 0.5f, 1.0f );
-        //drawOutlineRectangle(gl, 0.1f, 0.1f, 0.3f, 0.3f );
+        gl.glMatrixMode(GL10.GL_MODELVIEW);
+        gl.glLoadIdentity();
+
+        gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
+        gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
+        
         Board board = m_mainThread.getRenderBoard();
         synchronized( board)
         {
         	board.draw(gl, this);
         }
-
+        
         // Draw where the touch event is
         if ( m_touchAction == MotionEvent.ACTION_DOWN )
         {
@@ -191,32 +175,31 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
 			
         	int x = column;
         	int y = row;
-        	float ratio = m_ratio;
         	float cellWidth =  ( canvasWidth / Board.MAX_NUM_COLUMNS );
-        	float cellHeight = cellWidth * ratio;
+        	float cellHeight = cellWidth;
         	
         	float xpos = x0 + x * cellWidth;
         	float ypos = y0 + y * cellHeight;
         	
         	gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
-        	gl.glEnableClientState(GL10.GL_COLOR_ARRAY);
+        	gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
         	gl.glEnable(GL10.GL_BLEND);
         	gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
         	
         	gl.glColor4f( 1.0f, 0.5f, 0.8f, 0.7f );
-        	drawOutlineRectangle(gl, xpos, ypos, 0.1f, 0.1f*ratio );
+        	drawOutlineRectangle(gl, xpos, ypos, 0.1f, 0.1f );
         	
         	if ( ( column >= 0 )  && ( column < Board.MAX_NUM_COLUMNS ) )
         	{
         		if ( row == -1 )
         		{
         			gl.glColor4f( 1.0f, 0.0f, 0.0f, 0.4f );
-        			drawOutlineRectangle(gl, xpos, y0*ratio, cellWidth, canvasWidth*ratio);
+        			drawOutlineRectangle(gl, xpos, y0, cellWidth, canvasWidth);
         		}
         		if ( row == Board.MAX_NUM_ROWS )
         		{
         			gl.glColor4f( 0.0f, 0.0f, 1.0f, 0.4f );
-        			drawOutlineRectangle(gl, xpos, y0*ratio, cellWidth, canvasWidth*ratio);
+        			drawOutlineRectangle(gl, xpos, y0, cellWidth, canvasWidth);
         		}
         	}
         	if ( ( row >= 0 )  && ( row < Board.MAX_NUM_ROWS ) )
@@ -234,6 +217,13 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
         	}
         }
         
+        /*
+       	gl.glEnable(GL10.GL_BLEND);
+       	gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+        gl.glColor4f( 1.0f, 1.0f, 0.5f, 0.4f );
+        drawOutlineRectangle(gl, 0.0f, 0.0f, 1.0f, 1.0f );
+        */
+
         gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
         gl.glDisableClientState(GL10.GL_COLOR_ARRAY);
         
@@ -250,12 +240,10 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
     public void onSurfaceChanged(GL10 gl, int width, int height) 
     {
     	Log.i( TAG,"onSurfaceChanged");
-    	gl.glViewport(0, 0, width, height);
     	
     	/*
-    	 * Set our projection matrix. This doesn't have to be done
-    	 * each time we draw, but usually a new projection needs to
-    	 * be set when the viewport is resized.
+    	 * Set our projection matrix. This doesn't have to be done each time we draw, 
+    	 * but usually a new projection needs to be set when the viewport is resized.
     	 */
     	
     	m_width = (float)width;
@@ -264,7 +252,10 @@ public class GridLockedRenderer implements GLSurfaceView.Renderer
     	
     	gl.glMatrixMode(GL10.GL_PROJECTION);
     	gl.glLoadIdentity();
-    	gl.glFrustumf(-ratio, ratio, -1, 1, 1, 10);
+    	gl.glOrthof(0.0f, 1.0f, 1.0f/ratio, 0.0f, -1.0f, 1.0f );
+    	
+    	gl.glViewport(0, 0, width, height);
+    	
     	m_ratio = ratio;
     }
 

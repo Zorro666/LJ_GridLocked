@@ -139,8 +139,6 @@ public class Piece
 		int x = m_x;
 		int y = m_y;
 		
-		float ratio = renderer.getRatio();
-		
 		float width =  ( canvasWidth / Board.MAX_NUM_COLUMNS );
 		float height = width;
 		
@@ -148,9 +146,6 @@ public class Piece
 		float ypos = ( y0 + y * height );
 		xpos += width * Board.PIECE_OFFSET;
 		ypos += height * Board.PIECE_OFFSET;
-		
-		ypos *= ratio;
-		height *= ratio;
 		
 		width *= Board.PIECE_SCALE;
 		height *= Board.PIECE_SCALE;

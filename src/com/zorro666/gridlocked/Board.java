@@ -56,11 +56,10 @@ public class Board
 	{
     	//Log.i( TAG,"draw");
 		
-		float ratio = renderer.getRatio();
 		float x0 = Board.X_ORIGIN;
-		float y0 = Board.Y_ORIGIN * ratio;
+		float y0 = Board.Y_ORIGIN;
 		float boardWidth = Board.WIDTH;
-		float boardHeight = Board.WIDTH * ratio;
+		float boardHeight = Board.WIDTH;
 		
 		gl.glColor4f( 0.2f, 0.2f, 0.2f, 1.0f );
 		renderer.drawRectangle(gl, x0, y0, boardWidth, boardHeight);
@@ -78,7 +77,7 @@ public class Board
    			float ypos = y0 + ( y * boardHeight / (MAX_NUM_ROWS) );
    			renderer.drawHorizontalLine(gl, x0, ypos, boardWidth);
    		}
-		renderer.drawHorizontalLine(gl, x0, y0 + boardWidth*ratio , boardWidth);
+		renderer.drawHorizontalLine(gl, x0, y0 + boardWidth, boardWidth);
     		
     	for ( int x = 0; x < MAX_NUM_COLUMNS; ++x )
     	{
@@ -310,13 +309,13 @@ public class Board
 		{
 			return -1;
 		}
-		if ( y > (Board.Y_ORIGIN + Board.WIDTH) )
+		if ( y > (Board.Y_ORIGIN + Board.WIDTH*ratio) )
 		{
 			return MAX_NUM_ROWS;
 		}
 			
        	// Convert to board co-ordinates
-       	int row = (int)( Math.round( ( ( y - Board.Y_ORIGIN ) / Board.WIDTH ) * ((float)MAX_NUM_ROWS/ratio) ) );
+       	int row = (int)( Math.round( ( ( y - Board.Y_ORIGIN ) / Board.WIDTH ) * ((float)MAX_NUM_ROWS/ratio) ) + 0.5f );
        	return row;
 	}
 	static public int convertToColumn( float x )
@@ -329,7 +328,7 @@ public class Board
 		{
 			return MAX_NUM_COLUMNS;
 		}
-       	int column = (int)( Math.round( ( ( x - Board.X_ORIGIN ) / Board.WIDTH ) * (float)MAX_NUM_COLUMNS ) );
+       	int column = (int)( Math.round( ( ( x - Board.X_ORIGIN ) / Board.WIDTH ) * (float)MAX_NUM_COLUMNS ) + 0.5f );
        	return column;
 	}
 	
