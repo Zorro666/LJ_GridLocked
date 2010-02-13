@@ -4,11 +4,13 @@
 
 2. Make pieces and board look nicer
 * It is all in 3D - why not use 3D properly!
+* Slight camera wobble during movement / moving the pieces
 
 3. Sound
 * Be interesting learning process to get sounds into the game
 
 4. Visual FX
 * Need eye candy when/if the game play works
+
 
 
