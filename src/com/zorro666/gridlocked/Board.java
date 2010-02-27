@@ -92,6 +92,7 @@ public class Board
 	}
 	public void update()
 	{
+		boolean noMatch = true;
 		if ( s_generator.nextInt(100) < 0 )
 		{
 			randomTesting();
@@ -108,6 +109,7 @@ public class Board
     				{
     					// Some scoring happened
     					addScore( 10 );
+    					noMatch = false;
     				}
     			}
     		}
@@ -178,6 +180,23 @@ public class Board
     					{
     						m_matchPieces[p].setMatch();
     					}
+    				}
+    			}
+    		}
+    	}
+    	// When there are no more matches : let pieces fall
+    	if (noMatch)
+    	{
+    		for ( int x = 0; x < MAX_NUM_COLUMNS; ++x )
+    		{
+    			for ( int y = 1; y < MAX_NUM_ROWS; ++y )
+    			{
+    				Piece piece = m_boardSquares[x][y];
+    				if ( piece.isActive() == false )
+    				{
+    					Piece abovePiece = m_boardSquares[x][y-1];
+    					piece.update(abovePiece);
+    					abovePiece.empty();
     				}
     			}
     		}

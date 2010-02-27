@@ -1,0 +1,21 @@
+1. Want to get the game working properly
+* New piece should "fall" into correct spot - should not be moving rows/columns
+** Need to disallow illegal drops
+** Only allow pieces from left, top or right
+** Support pieces falling down to fill gaps
+*** If pieces fall down to fill gaps, adding from left/right is identical to adding from the top
+**** Try no gravity option then add piece left/right/top/bottom
+* Proper scoring during matching with bonus for multiple match within one turn
+
+2. Make pieces and board look nicer
+* It is all in 3D - why not use 3D properly!
+* Slight camera wobble during movement / moving the pieces
+
+3. Sound
+* Be interesting learning process to get sounds into the game
+
+4. Visual FX
+* Need eye candy when/if the game play works
+
+
+
